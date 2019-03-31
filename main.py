@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
-import datetime
+import dateparser
+from datetime import datetime, timedelta, date
 
 # INTODUCTION TEXT
 
@@ -44,7 +45,7 @@ for i in range(numberOfCategories):
 	print(i + 1, ") ", categoriesList[i], sep='')
 print()
 
-# Ensure valid input
+# Select a category
 categorySelection = input("Select a category below by its listed number: ")
 while True:
 	if categorySelection.isdigit() and 1 <= int(categorySelection) <= numberOfCategories:
@@ -71,7 +72,7 @@ for i in range(numberOfCharts):
 	print(i + 1, ") ", chartsList[i], sep='')
 print()
 
-# Ensure valid input
+# Select a chart
 chartSelection = input("Select a chart below by its listed number: ")
 while True:
 	if chartSelection.isdigit() and 1 <= int(chartSelection) <= numberOfCharts:
@@ -79,30 +80,46 @@ while True:
 		break
 	chartSelection = input("Please enter a valid selection (numbers 1 - " + str(numberOfCharts) + "): ")
 
-print("You selected", categoriesList[categorySelection], "and", chartsList[chartSelection])
+# 'https://www.billboard.com' + charts[0].parent.parent['href']
 
 
 
-
-# START YEAR SELECTION
+# YEAR SELECTION
 
 print("Enter the dates you would like to parse from:")
 
-# Ensure valid input
-startYear = input("Start Year: ")
+# Get the starting date (and get the next Saturday)
+print("Starting Date: ", end="")
 while True:
-	if startYear.isdigit() and 1958 <= int(startYear) <= datetime.now().year:
-		startYear = int(startYear)
-		break;
-	startYear = input("Please enter a valid year (1958 - " + startYear + "): ")
+	try:
+		startDate = dateparser.parse(input())
+		startDate += timedelta(days=((5 - startDate.weekday()) % 7))
+		# TODO fix this for the 
+		if date(1958, 8, 4) <= startDate.date() <= datetime.now().date():
+			break
+		raise Exception
+	except Exception:
+		startDate = print("Please enter a valid date: ", end="")
+
+# Get the starting date (and get the next Saturday)
+print("Ending Date: ", end="")
+while True:
+	try:
+		endDate = dateparser.parse(input())
+		endDate += timedelta(days=((5 - endDate.weekday()) % 7))
+		if startDate.date() <= endDate.date() <= datetime.now().date():
+			break
+		raise Exception
+	except Exception:
+		endDate = print("Please enter a valid date: ", end="")
+
+print(startDate, endDate)
 
 
 
 
 
-
-
-
+# PARSE THE WEBPAGES
 
 
 
