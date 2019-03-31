@@ -14,8 +14,10 @@ print("Working as of March 30th, 2019\n")
 
 # DOWNLOAD WEBPAGE
 
+url = "https://www.billboard.com"
+
 # Downloads the webpage
-billboard = requests.get("https://www.billboard.com/charts/")
+# billboard = requests.get(url + "/charts/")
 
 # Parse the webpage
 # webpage = BeautifulSoup(billboard.text, 'html.parser')
@@ -58,7 +60,7 @@ while True:
 
 # CHART SELECTION
 
-charts = webpage.find(id=categoriesList[categorySelection].replace(' ','').lower() + 'ChartPanel').find_all(class_="chart-panel__text")
+charts = webpage.find(id=categoriesList[categorySelection].replace(' ','').replace('/','').lower() + 'ChartPanel').find_all(class_="chart-panel__text")
 
 chartsList = []
 for tag in charts:
@@ -80,33 +82,34 @@ while True:
 		break
 	chartSelection = input("Please enter a valid selection (numbers 1 - " + str(numberOfCharts) + "): ")
 
-# 'https://www.billboard.com' + charts[0].parent.parent['href']
-
-
+chart = charts[0].parent.parent['href']
 
 # YEAR SELECTION
 
 print("Enter the dates you would like to parse from:")
 
-# Get the starting date (and get the next Saturday)
+# Get the starting date
 print("Starting Date: ", end="")
 while True:
 	try:
 		startDate = dateparser.parse(input())
+		# Set the date to be the next Saturday
 		startDate += timedelta(days=((5 - startDate.weekday()) % 7))
-		# TODO fix this for the 
-		if date(1958, 8, 4) <= startDate.date() <= datetime.now().date():
+		# Make sure the date is within the allowed time frames (1958 is the oldest available chart date on the website, I think)
+		if date(1958, 7, 28) <= startDate.date() <= datetime.now().date():
 			break
 		raise Exception
 	except Exception:
 		startDate = print("Please enter a valid date: ", end="")
 
-# Get the starting date (and get the next Saturday)
+# Get the starting date
 print("Ending Date: ", end="")
 while True:
 	try:
 		endDate = dateparser.parse(input())
+		# Set the date to be the next Saturday
 		endDate += timedelta(days=((5 - endDate.weekday()) % 7))
+		# Make sure the date is between the start date and now
 		if startDate.date() <= endDate.date() <= datetime.now().date():
 			break
 		raise Exception
@@ -118,47 +121,33 @@ print(startDate, endDate)
 
 
 
-
 # PARSE THE WEBPAGES
 
+songDictionary = {}
 
+date = startDate
+currentURL = url + chart + "/%d-%02d-%02d" % (date.year, date.month, date.day)
+while date < endDate:
+	print("Parsing: ", date.date(), sep="")
+	week = BeautifulSoup(requests.get(currentURL).text, 'html.parser')
+	songBlocks = week.select(".chart-list.chart-details__left-rail")
+	songs = []
+	for block in songBlocks:
+		songList = block.find_all("div", "chart-list-item")
+		for songEntry in songList:
+			key = (songEntry['data-artist'], songEntry['data-title'])
+			rank = 101 - int(songEntry['data-rank'])
+			if key in songDictionary.keys():
+				songDictionary[key] += rank
+			else :
+				songDictionary[key] = rank
+			songs.append([songEntry['data-rank'], songEntry['data-artist'], songEntry['data-title']])
+	currentURL = url + week.select('.dropdown__date-selector-option')[1].a['href']
+	date = dateparser.parse(currentURL[-10:])
 
+rankedSongs = sorted(songDictionary, key=songDictionary.get)
+rankedSongs.reverse()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+for rank in range(100):
+	print(rank + 1, ") ", rankedSongs[rank][1], " - ", rankedSongs[rank][0], sep='')
 
