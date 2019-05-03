@@ -14,14 +14,14 @@ print("Working as of March 30th, 2019\n")
 url = "https://www.billboard.com"
 
 # Downloads the webpage
-billboard = requests.get(url + "/charts/")
+# billboard = requests.get(url + "/charts/")
 
 # Parse the webpage
-webpage = BeautifulSoup(billboard.text, 'html.parser')
+# webpage = BeautifulSoup(billboard.text, 'html.parser')
 
 # Use this temporarily to prevent downloading the webpage multiple times
-# file = open('index.html', 'r')
-# webpage = BeautifulSoup(file.read(), 'html.parser')
+file = open('index.html', 'r')
+webpage = BeautifulSoup(file.read(), 'html.parser')
 
 # CATEGORY SELECTION
 
@@ -89,8 +89,10 @@ while True:
 	try:
 		# Get the desired start date
 		startDate = dateparser.parse(input())
-		# Set the date to be the next Saturday
+		# Set the date to be the next Saturday, or previous Saturday if the next Saturday hasn't happened yet
 		startDate += timedelta(days=((5 - startDate.weekday()) % 7))
+		if startDate.date() > datetime.now().date():
+			startDate -= timedelta(days=7)
 		# Make sure the date is within the allowed time frames (1958 is the oldest available chart date on the website, I think)
 		if date(1958, 7, 28) <= startDate.date() <= datetime.now().date():
 			break
@@ -103,8 +105,10 @@ print("Ending Date: ", end="")
 while True:
 	try:
 		endDate = dateparser.parse(input())
-		# Set the date to be the next Saturday
+		# Set the date to be the next Saturday, or previous Saturday if the next Saturday hasn't happened yet
 		endDate += timedelta(days=((5 - endDate.weekday()) % 7))
+		if endDate.date() > datetime.now().date():
+			endDate -= timedelta(days=7)
 		# Make sure the date is between the start date and now
 		if startDate.date() <= endDate.date() <= datetime.now().date():
 			break
@@ -124,7 +128,7 @@ date = startDate
 currentURL = url + chart + "/%d-%02d-%02d" % (date.year, date.month, date.day)
 
 # Run until completion
-while date < endDate:
+while True:
 	# Print out the current date to ensure it is working
 	print("Parsing: ", date.date(), sep="")
 	# Download the current dates song list
@@ -139,13 +143,16 @@ while date < endDate:
 		for songEntry in songList:
 			# Create tuple as dictionary keys
 			key = (songEntry['data-artist'], songEntry['data-title'])
-			# Reverse the order of the ranking (#1 song is now 100)
-			rank = 101 - int(songEntry['data-rank'])
+			# Reverse the order of the ranking (#1 song is now the length of the list, not necessarily 100)
+			rank = len(songBlocks) * len(songList) + 1 - int(songEntry['data-rank'])
 			# Check if the song is in the dictionary already, if it is, then add its rank, else add it to the dictionary
 			if key in songDictionary.keys():
 				songDictionary[key] += rank
 			else :
 				songDictionary[key] = rank
+	# Exit condition			
+	if date >= endDate:
+		break		
 	# Set the new current url for the next iteration			
 	currentURL = url + week.select('.dropdown__date-selector-option')[1].a['href']
 	# Get the next date from the url (last 10 characters)
