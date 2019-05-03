@@ -1,0 +1,8 @@
+# Ignore VSCode Folder
+.vscode/
+
+# Ignore PyCache Folder
+__pycache__/
+
+# Ignore HTML Files
+*.html
