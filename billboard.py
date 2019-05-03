@@ -13,9 +13,6 @@ class BillboardParser:
 		try :
 			# charts_webpage = BeautifulSoup(requests.get(self.billboard_URL + "/charts/").text, 'html.parser')
 			charts_webpage = BeautifulSoup(open('index.html', 'r').read(), 'html.parser')
-		except Exception:
-			raise Exception("Unfortunately, something went wrong. Did the Billboard website change? (Error Code: 0)")
-		try:
 			for category in charts_webpage.select('.chart-panel__item.chart-panel__item--selector'):
 				current_category = ' '.join(''.join(category.div.contents).split())
 				self.all_charts[current_category] = dict()
@@ -24,19 +21,8 @@ class BillboardParser:
 					chart_links = [chart_name['href'] for chart_name in chart.find_all('a')]
 					for chart in range(len(chart_names)):
 						self.all_charts[current_category][chart_names[chart]] = chart_links[chart]
-					# self.all_charts[current_category].append([' '.join(''.join(chart.find(class_="chart-panel__text").contents).split()), chart.find_all('a')['href']])
-				# self.all_charts[current_category] = [chart.find('a')['href'], ' '.join(''.join(chart.find_all(class_="chart-panel__text").contents).split())]
-				# for chart in charts_webpage.find(id=re.sub('[ /&]', '', current_category).lower() + 'ChartPanel')
-				# print(filter(lambda x: x != '\n', charts_webpage.find(id=re.sub('[ /&]', '', current_category).lower() + 'ChartPanel')))
-				# for chart in charts_webpage.find(id=re.sub('[ /&]', '', current_category).lower() + 'ChartPanel'):
-				# 	# print(chart.contents)
-					# self.all_charts[current_category] = [chart['href'], ' '.join(''.join(chart.find_all(class_="chart-panel__text").contents).split())]
-				# # self.all_charts[current_category].append(re.sub('[ /&]', '', ''.join(self.all_charts[current_category][0])))
-				# # print(self.all_charts[current_category][1])
-		except Exception as e:
-			raise e
-			# print(e)
-			# pass
+		except Exception:
+			raise Exception("Unfortunately, something went wrong. Did the Billboard website change? (Error Code: 0)")
 		
 	def get_categories(self):
 		return list(self.all_charts.keys())
@@ -54,9 +40,7 @@ class BillboardParser:
 	def parse(self, category, chart, starting_date, ending_date):
 		try:
 			def download(current_date):
-				print("Currently parsing " + str(current_date))
-				# print(self.all_charts[chart].parent.parent['href'])
-				print(self.billboard_URL + self.all_charts[category][chart] + '/' + str(current_date))
+				print("Currently parsing " + self.billboard_URL + self.all_charts[category][chart] + '/' + str(current_date))
 				return BeautifulSoup(requests.get(self.billboard_URL + self.all_charts[category][chart] + '/' + str(current_date)).text, 'html.parser')
 			def get_song_list(current_webpage):
 				song_dictionary = {}

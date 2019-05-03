@@ -1,8 +1,8 @@
-from billboard import *
+from billboard import BillboardParser
 
 print("Billboard Chart Parser v2.0")
 print("This tool will parse the billboard.com website to find the best songs")
-print("Working as of March 30th, 2019\n")
+print("Working as of May 2st, 2019\n")
 
 billboard_parser = BillboardParser()
 
@@ -37,13 +37,11 @@ print("Enter the dates you would like to parse from:")
 while True:
 	print("Starting Date: ", end="")
 	while True:
-		# try:
+		try:
 			starting_date = billboard_parser.get_nearest_valid_date(input())
 			break
-		# except Exception as e:
-		# 	print(e)
-			# print("Please enter a valid date: ", end="")
-
+		except Exception:
+			print("Please enter a valid date: ", end="")
 	print("Ending Date: ", end="")
 	while True:
 		try:
