@@ -165,4 +165,3 @@ rankedSongs.reverse()
 # Display the list
 for rank in range(min(len(rankedSongs), 100)):
 	print(rank + 1, ") ", rankedSongs[rank][1], " - ", rankedSongs[rank][0], sep='')
-
