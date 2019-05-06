@@ -6,3 +6,6 @@ __pycache__/
 
 # Ignore HTML Files
 *.html
+
+# Spotify Credential
+credentials.yml

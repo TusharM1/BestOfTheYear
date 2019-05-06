@@ -3,6 +3,10 @@ from bs4 import BeautifulSoup
 import re
 import dateparser
 from datetime import datetime, timedelta, date
+import spotipy
+from spotipy import oauth2 as auth
+import yaml
+import urllib
 
 class BillboardParser:
 
@@ -15,12 +19,8 @@ class BillboardParser:
 			charts_webpage = BeautifulSoup(open('index.html', 'r').read(), 'html.parser')
 			for category in charts_webpage.select('.chart-panel__item.chart-panel__item--selector'):
 				current_category = ' '.join(''.join(category.div.contents).split())
-				self.all_charts[current_category] = dict()
 				for chart in charts_webpage.find_all(id=re.sub('[ /&]', '', current_category).lower() + 'ChartPanel'):
-					chart_names = [' '.join(''.join(chart_link.contents).split()) for chart_link in chart.find_all(class_="chart-panel__text")]
-					chart_links = [chart_name['href'] for chart_name in chart.find_all('a')]
-					for chart in range(len(chart_names)):
-						self.all_charts[current_category][chart_names[chart]] = chart_links[chart]
+					self.all_charts[current_category] = dict(zip([' '.join(''.join(chart_link.contents).split()) for chart_link in chart.find_all(class_="chart-panel__text")], [chart_name['href'] for chart_name in chart.find_all('a')]))
 		except Exception:
 			raise Exception("Unfortunately, something went wrong. Did the Billboard website change? (Error Code: 0)")
 		
@@ -30,6 +30,10 @@ class BillboardParser:
 	def get_charts(self, category):
 		return list(self.all_charts[category].keys())
 
+	def get_all_charts(self):
+		# return dict(zip(self.all_charts.keys(), [list(value.keys()) for value in self.all_charts.values()]))
+		return dict(zip(self.all_charts.keys(), [dict(zip(value.keys(), value.values())) for value in self.all_charts.values()]))
+
 	def get_nearest_valid_date(self, current_date):
 		nearest_date = dateparser.parse(current_date).date()
 		nearest_date += timedelta(days=((5 - nearest_date.weekday()) % 7))
@@ -37,10 +41,10 @@ class BillboardParser:
 			nearest_date -= timedelta(days=7)
 		return max(min(nearest_date, self.todays_date), date(1958, 7, 28))
 
-	def parse(self, category, chart, starting_date, ending_date):
+	def parse(self, category, chart, starting_date, ending_date, require_spotify_ids):
 		try:
 			def download(current_date):
-				print("Currently parsing " + self.billboard_URL + self.all_charts[category][chart] + '/' + str(current_date))
+				print("Parsing " + self.billboard_URL + self.all_charts[category][chart] + '/' + str(current_date))
 				return BeautifulSoup(requests.get(self.billboard_URL + self.all_charts[category][chart] + '/' + str(current_date)).text, 'html.parser')
 			def get_song_list(current_webpage):
 				song_dictionary = {}
@@ -53,8 +57,11 @@ class BillboardParser:
 						song_dictionary[song_key] = rank_value
 				return song_dictionary
 			def get_next_date():
-				current_URL = self.billboard_URL + current_webpage.select('.dropdown__date-selector-option')[1].a['href']
-				return dateparser.parse(current_URL[-10:]).date()	
+				try:
+					current_URL = self.billboard_URL + current_webpage.select('.dropdown__date-selector-option')[1].a['href']
+					return dateparser.parse(current_URL[-10:]).date()
+				except:
+					return None	
 			current_webpage = download(starting_date)
 			song_dictionary = get_song_list(current_webpage)
 			while True:
@@ -67,7 +74,21 @@ class BillboardParser:
 					song_dictionary[key] = song_dictionary.get(key, 0) + current_dictionary[key]
 			best_songs = sorted(song_dictionary, key=song_dictionary.get)
 			best_songs.reverse()
+			best_songs = [dict(zip(['artistName', 'songTitle'], song)) for song in best_songs]
+			if require_spotify_ids:
+				print('Getting Spotify IDs...')
+				credentials = yaml.safe_load(open('credentials.yml'))
+				CLIENT_ID = credentials['SPOTIFY']['CLIENT_ID']
+				CLIENT_SECRET = credentials['SPOTIFY']['CLIENT_SECRET']
+				spotify = spotipy.Spotify(auth.SpotifyClientCredentials(client_id=CLIENT_ID, client_secret=CLIENT_SECRET).get_access_token())
+				for song in best_songs:
+					try:
+						result = spotify.search(re.sub(r'([Ww]ith |[Ff]eaturing |[Xx&] | \w\*+\w|\w\*+\w )', '', song['artistName']) + " " + song['songTitle'], limit=1, offset=0, type='track')
+						song['spotifyID'] = result['tracks']['items'][0]['uri']
+					except:
+						print('Couldn\'t find song:', song['artistName'], '-', song['songTitle'])
 			return best_songs
-		except Exception:
-			raise Exception('Something went very wrong...')
-				
+		except Exception as e:
+			raise(e)
+			# print(e)
+			# return []
