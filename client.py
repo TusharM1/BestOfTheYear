@@ -52,16 +52,19 @@ while True:
 	if starting_date <= ending_date:
 		break
 	print("Starting Date ({}) must be before the ending date ({})".format(str(starting_date.date()), str(ending_date.date())))
-			
-best_songs = billboard_parser.parse(categories[category_selection], charts[chart_selection], starting_date, ending_date, True)
+
+max_size = 1
+require_spotify_ids = True			
+best_songs = billboard_parser.parse(categories[category_selection], charts[chart_selection], starting_date, ending_date, max_size, require_spotify_ids)
 for rank in range(min(len(best_songs), 100)):
 	song_output = str(rank + 1) + ") "
 	try:
 		song_output += best_songs[rank]['artistName']
 		if best_songs[rank]['songTitle'] != '':
 			song_output += " - " + best_songs[rank]['songTitle']
-		if best_songs[rank]['spotifyID'] != '':
-		 	song_output += " - " + best_songs[rank]['spotifyID']
+		if require_spotify_ids:	
+			if best_songs[rank]['spotifyID'] != '':
+				song_output += " - " + best_songs[rank]['spotifyID']
 	except Exception:
 		song_output = "ERROR: " + best_songs[rank]['artistName'] + " - " + best_songs[rank]['songTitle']
 	print(song_output)	

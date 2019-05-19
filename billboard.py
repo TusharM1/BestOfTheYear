@@ -41,7 +41,7 @@ class BillboardParser:
 			nearest_date -= timedelta(days=7)
 		return max(min(nearest_date, self.todays_date), date(1958, 7, 28))
 
-	def parse(self, category, chart, starting_date, ending_date, require_spotify_ids):
+	def parse(self, category, chart, starting_date, ending_date, max_size, require_spotify_ids):
 		try:
 			def download(current_date):
 				print("Parsing " + self.billboard_URL + self.all_charts[category][chart] + '/' + str(current_date))
@@ -75,7 +75,16 @@ class BillboardParser:
 			best_songs = sorted(song_dictionary, key=song_dictionary.get)
 			best_songs.reverse()
 			best_songs = [dict(zip(['artistName', 'songTitle'], song)) for song in best_songs]
-			if require_spotify_ids:
+			if type(max_size) is str:
+				max_size = re.sub('[\"\']', '', max_size)
+				if max_size.isdigit():
+					max_size = int(max_size)
+				else:
+					max_size = 0
+			if max_size > 0:		
+				del best_songs[int(max_size):]	
+			require_spotify_ids = re.sub('[\"\']', '', str(require_spotify_ids))		
+			if require_spotify_ids == 'True':
 				print('Getting Spotify IDs...')
 				credentials = yaml.safe_load(open('credentials.yml'))
 				CLIENT_ID = credentials['SPOTIFY']['CLIENT_ID']
@@ -88,7 +97,5 @@ class BillboardParser:
 					except:
 						print('Couldn\'t find song:', song['artistName'], '-', song['songTitle'])
 			return best_songs
-		except Exception as e:
-			raise(e)
-			# print(e)
-			# return []
+		except Exception:
+			return []
