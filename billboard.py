@@ -32,7 +32,7 @@ class BillboardParser:
 
 	def get_all_charts(self):
 		# return dict(zip(self.all_charts.keys(), [list(value.keys()) for value in self.all_charts.values()]))
-		return dict(zip(self.all_charts.keys(), [dict(zip(value.keys(), value.values())) for value in self.all_charts.values()]))
+		return dict(zip(self.all_charts.keys(), [list(value.keys()) for value in self.all_charts.values()]))
 
 	def get_nearest_valid_date(self, current_date):
 		nearest_date = dateparser.parse(current_date).date()
@@ -82,7 +82,7 @@ class BillboardParser:
 				else:
 					max_size = 0
 			if max_size > 0:		
-				del best_songs[int(max_size):]	
+				del best_songs[int(max_size):]
 			require_spotify_ids = re.sub('[\"\']', '', str(require_spotify_ids))		
 			if require_spotify_ids == 'True':
 				print('Getting Spotify IDs...')
