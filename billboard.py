@@ -15,8 +15,7 @@ class BillboardParser:
 		self.todays_date = datetime.now().date()
 		self.all_charts = dict()
 		try :
-			# charts_webpage = BeautifulSoup(requests.get(self.billboard_URL + "/charts/").text, 'html.parser')
-			charts_webpage = BeautifulSoup(open('index.html', 'r').read(), 'html.parser')
+			charts_webpage = BeautifulSoup(requests.get(self.billboard_URL + "/charts/").text, 'html.parser')
 			for category in charts_webpage.select('.chart-panel__item.chart-panel__item--selector'):
 				current_category = ' '.join(''.join(category.div.contents).split())
 				for chart in charts_webpage.find_all(id=re.sub('[ /&]', '', current_category).lower() + 'ChartPanel'):
@@ -31,7 +30,6 @@ class BillboardParser:
 		return list(self.all_charts[category].keys())
 
 	def get_all_charts(self):
-		# return dict(zip(self.all_charts.keys(), [list(value.keys()) for value in self.all_charts.values()]))
 		return dict(zip(self.all_charts.keys(), [list(value.keys()) for value in self.all_charts.values()]))
 
 	def get_nearest_valid_date(self, current_date):
@@ -95,7 +93,7 @@ class BillboardParser:
 						result = spotify.search(re.sub(r'([Ww]ith |[Ff]eaturing |[Xx&] | \w\*+\w|\w\*+\w )', '', song['artistName']) + " " + song['songTitle'], limit=1, offset=0, type='track')
 						song['spotifyID'] = result['tracks']['items'][0]['uri']
 					except:
-						print('Couldn\'t find song:', song['artistName'], '-', song['songTitle'])
+						print('Couldn\'t find song:', song['artistName'], '-', song['songTitle'])               
 			return best_songs
 		except Exception:
 			return []

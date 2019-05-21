@@ -3,14 +3,12 @@ from flask import Flask, jsonify, request, json
 from billboard import BillboardParser
 
 app = Flask(__name__)
-# app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
 billboard_parser = BillboardParser()
 
 @app.route('/get-all-charts/')
 def get_categories():
 	return json.dumps(billboard_parser.get_all_charts()), 200, {'Content-Type': 'application/json'}
-	# return jsonify(billboard_parser.get_all_charts())
 
 @app.route('/billboard-parser/')
 def parse():
@@ -21,7 +19,6 @@ def parse():
 	max_size = request.args.get('max-size')
 	require_spotify_ids = request.args.get('require-spotify-ids')
 	return json.dumps(billboard_parser.parse(category, chart, starting_date, ending_date, max_size, require_spotify_ids)), 200, {'Content-Type': 'application/json'}
-	# return jsonify(billboard_parser.parse(category, chart, starting_date, ending_date, max_size, require_spotify_ids))
 
 if __name__ == '__main__':
     app.run(debug=True)
