@@ -6,7 +6,6 @@ from datetime import datetime, timedelta, date
 import spotipy
 from spotipy import oauth2 as auth
 import yaml
-import urllib
 
 class BillboardParser:
 
@@ -39,7 +38,7 @@ class BillboardParser:
 			nearest_date -= timedelta(days=7)
 		return max(min(nearest_date, self.todays_date), date(1958, 7, 28))
 
-	def parse(self, category, chart, starting_date, ending_date, max_size, require_spotify_ids):
+	def parse(self, category, chart, starting_date, ending_date, max_size, retrieve_spotify_ids):
 		try:
 			def download(current_date):
 				print("Parsing " + self.billboard_URL + self.all_charts[category][chart] + '/' + str(current_date))
@@ -81,8 +80,8 @@ class BillboardParser:
 					max_size = 0
 			if max_size > 0:		
 				del best_songs[int(max_size):]
-			require_spotify_ids = re.sub('[\"\']', '', str(require_spotify_ids))		
-			if require_spotify_ids == 'True':
+			retrieve_spotify_ids = re.sub('[\"\']', '', str(retrieve_spotify_ids))		
+			if retrieve_spotify_ids == 'True':
 				print('Getting Spotify IDs...')
 				credentials = yaml.safe_load(open('credentials.yml'))
 				CLIENT_ID = credentials['SPOTIFY']['CLIENT_ID']

@@ -53,16 +53,32 @@ while True:
 		break
 	print("Starting Date ({}) must be before the ending date ({})".format(str(starting_date.date()), str(ending_date.date())))
 
-max_size = 1
-require_spotify_ids = True			
-best_songs = billboard_parser.parse(categories[category_selection], charts[chart_selection], starting_date, ending_date, max_size, require_spotify_ids)
+max_size = input("Enter the maximum desired entries (or leave blank for no maximum): ")
+while True:
+	if max_size.isdigit() and int(max_size) >= 0:
+		max_size = int(max_size)
+		break
+	max_size = input("Please enter a valid number greater than 0: ")
+
+retrieve_spotify_ids = input("Retrive Spotify IDs for songs? (Yes / No): ")
+while True:
+	retrieve_spotify_ids = retrieve_spotify_ids.lower()
+	if retrieve_spotify_ids == 'yes' or retrieve_spotify_ids == 'y':
+		retrieve_spotify_ids = True
+		break
+	if retrieve_spotify_ids == 'no' or retrieve_spotify_ids == 'n':
+		retrieve_spotify_ids = False
+		break    
+	retrieve_spotify_ids = input("Please enter either Yes or No: ")
+		
+best_songs = billboard_parser.parse(categories[category_selection], charts[chart_selection], starting_date, ending_date, max_size, retrieve_spotify_ids)
 for rank in range(min(len(best_songs), 100)):
 	song_output = str(rank + 1) + ") "
 	try:
 		song_output += best_songs[rank]['artistName']
 		if best_songs[rank]['songTitle'] != '':
 			song_output += " - " + best_songs[rank]['songTitle']
-		if require_spotify_ids:	
+		if retrieve_spotify_ids:	
 			if best_songs[rank]['spotifyID'] != '':
 				song_output += " - " + best_songs[rank]['spotifyID']
 	except Exception:

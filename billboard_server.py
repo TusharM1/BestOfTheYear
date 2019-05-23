@@ -1,5 +1,5 @@
 #!flask/bin/python
-from flask import Flask, jsonify, request, json
+from flask import Flask, request, json
 from billboard import BillboardParser
 
 app = Flask(__name__)
