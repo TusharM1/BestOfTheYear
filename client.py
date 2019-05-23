@@ -1,8 +1,8 @@
 from billboard import BillboardParser
 
-print("Billboard Chart Parser v2.0")
-print("This tool will parse the billboard.com website to find the best songs")
-print("Working as of May 2st, 2019\n")
+print("Billboard Chart Parser v2.1")
+print("This tool will scrape the Billboard website to find the best songs and lookup their Spotify IDs")
+print("Working as of May 21st, 2019\n")
 
 billboard_parser = BillboardParser()
 
@@ -68,8 +68,10 @@ while True:
 		break
 	if retrieve_spotify_ids == 'no' or retrieve_spotify_ids == 'n':
 		retrieve_spotify_ids = False
-		break    
+		break
 	retrieve_spotify_ids = input("Please enter either Yes or No: ")
+
+print()	
 		
 best_songs = billboard_parser.parse(categories[category_selection], charts[chart_selection], starting_date, ending_date, max_size, retrieve_spotify_ids)
 for rank in range(min(len(best_songs), 100)):
@@ -78,9 +80,9 @@ for rank in range(min(len(best_songs), 100)):
 		song_output += best_songs[rank]['artistName']
 		if best_songs[rank]['songTitle'] != '':
 			song_output += " - " + best_songs[rank]['songTitle']
-		if retrieve_spotify_ids:	
+		if retrieve_spotify_ids:
 			if best_songs[rank]['spotifyID'] != '':
 				song_output += " - " + best_songs[rank]['spotifyID']
 	except Exception:
 		song_output = "ERROR: " + best_songs[rank]['artistName'] + " - " + best_songs[rank]['songTitle']
-	print(song_output)	
+	print(song_output)

@@ -21,4 +21,4 @@ def parse():
 	return json.dumps(billboard_parser.parse(category, chart, starting_date, ending_date, max_size, require_spotify_ids)), 200, {'Content-Type': 'application/json'}
 
 if __name__ == '__main__':
-    app.run(debug=True)
+	app.run(debug=True)

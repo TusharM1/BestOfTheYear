@@ -58,7 +58,7 @@ class BillboardParser:
 					current_URL = self.billboard_URL + current_webpage.select('.dropdown__date-selector-option')[1].a['href']
 					return dateparser.parse(current_URL[-10:]).date()
 				except:
-					return None	
+					return None
 			current_webpage = download(starting_date)
 			song_dictionary = get_song_list(current_webpage)
 			while True:
@@ -78,9 +78,9 @@ class BillboardParser:
 					max_size = int(max_size)
 				else:
 					max_size = 0
-			if max_size > 0:		
+			if max_size > 0:
 				del best_songs[int(max_size):]
-			retrieve_spotify_ids = re.sub('[\"\']', '', str(retrieve_spotify_ids))		
+			retrieve_spotify_ids = re.sub('[\"\']', '', str(retrieve_spotify_ids))
 			if retrieve_spotify_ids == 'True':
 				print('Getting Spotify IDs...')
 				credentials = yaml.safe_load(open('credentials.yml'))
@@ -92,7 +92,7 @@ class BillboardParser:
 						result = spotify.search(re.sub(r'([Ww]ith |[Ff]eaturing |[Xx&] | \w\*+\w|\w\*+\w )', '', song['artistName']) + " " + song['songTitle'], limit=1, offset=0, type='track')
 						song['spotifyID'] = result['tracks']['items'][0]['uri']
 					except:
-						print('Couldn\'t find song:', song['artistName'], '-', song['songTitle'])               
+						print('Couldn\'t find song:', song['artistName'], '-', song['songTitle'])
 			return best_songs
 		except Exception:
 			return []
