@@ -1,11 +1,16 @@
-# Ignore VSCode Folder
+# VSCode Folder
 .vscode/
 
-# Ignore PyCache Folder
+# PyCache Folder
 __pycache__/
 
-# Ignore HTML Files
+# HTML Files
 *.html
 
 # Spotify Credential
 credentials.yml
+
+# PyInstaller
+*.spec
+build/
+dist/
