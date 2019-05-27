@@ -7,7 +7,7 @@ print("Barely working as of May 21st, 2019\n")
 
 billboard_parser = BillboardParser()
 
-print("Please select a category from the list:")
+print("Select a category from the list:")
 categories = billboard_parser.get_categories()
 for i in range(len(categories)):
     print(i + 1, ") ", categories[i], sep='')
@@ -20,7 +20,7 @@ while True:
         break
     category_selection = input("Please enter a valid selection (numbers 1 - %d): " % len(categories))
 
-print("Please select a chart from the list:")
+print("Select a chart from the list:")
 charts = billboard_parser.get_charts(categories[category_selection])
 for i in range(len(charts)):
     print(i + 1, ") ", charts[i], sep='')
